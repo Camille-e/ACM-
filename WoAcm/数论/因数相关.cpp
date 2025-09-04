@@ -50,6 +50,7 @@ vector<T> divfac(T k){
     }
     return fact;
 }
+//n阶乘下p的幂次
 ll multiplicity_factorial(ll n, ll p) {
     ll cnt = 0;
     while (n >= p){
@@ -69,4 +70,5 @@ signed main() {
         solve();
     }
     return 0;
+
 }
