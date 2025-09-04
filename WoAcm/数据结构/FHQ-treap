@@ -1,0 +1,105 @@
+#include<bits/stdc++.h>
+using ll = long long;
+using ull = unsigned long long;
+using i128 = __int128_t ;
+#define IOS ios::sync_with_stdio(0), cin.tie(0)
+using namespace std;
+const int mod = 1e9 + 7;
+const int maxn = 1e5 + 2;
+struct FHQ{
+    int n,cnt,root;
+    vector<int>key,wei,size,reverse;
+    //0: 左孩子,1: 右孩子
+    vector<array<int,2>>son;
+    FHQ (const int&_n) : n(_n){
+        key = wei = size = reverse = vector<int>(n + 1);
+        son = vector<array<int,2>>(n + 1);
+        cnt = 0;
+        root = 0;
+    };
+    void up(int u){
+        size[u] = size[son[u][0]] + size[son[u][1]] + 1;
+    }
+    //懒标记
+    void down(int i){
+        if(reverse[i]){
+            swap(son[i][0],son[i][1]);
+            reverse[son[i][0]] ^= 1;
+            reverse[son[i][1]] ^= 1;
+            reverse[i] = 0;
+        }
+    }
+    //返回分裂的左右树的根
+    //分裂为小于等于k的和大于k的
+    pair<int,int> split_rank(int u,int k){
+        if(!u) return pair<int,int>{0,0};
+        down(u);
+        if(size[son[u][0]] + 1 <= k){
+            pair<int,int> t = split_rank(son[u][1],k - size[son[u][0]] - 1);
+            son[u][1] = t.first;
+            up(u);
+            return pair<int,int>{u,t.second};
+        }else{
+            pair<int,int> t = split_rank(son[u][0],k);
+            son[u][0] = t.second;
+            up(u);
+            return pair<int,int>{t.first,u};
+        }
+    }
+    //分裂为小于k的和大于等于k的
+    pair<int,int> split_val(int u,int k){
+        if(!u) return pair<int,int>{0,0};
+        down(u);
+        if(key[u] < k){
+            pair<int,int> t = split_val(son[u][1],k);
+            son[u][1] = t.first;
+            up(u);
+            return pair<int,int>{u,t.second};
+        }else{
+            pair<int,int> t = split_val(son[u][0],k);
+            son[u][0] = t.second;
+            up(u);
+            return pair<int,int>{t.first,u};
+        }
+    }
+    //返回最终根
+    int merge(int u,int v){
+        if(!u || !v) return u + v;
+        if(wei[u] < wei[v]){
+            down(u);
+            son[u][1] = merge(son[u][1],v);
+            up(u);
+            return u;
+        }else{
+            down(v);
+            son[v][0] = merge(u,son[v][0]);
+            up(v);
+            return v;
+        }
+    }
+    //插入一个数
+    void insertval(int k){
+        key[++cnt] = k; wei[cnt] = rand() % 1000000007; size[cnt]=1;
+        //申请一个节点，作为一棵树，其大小为 1
+        pair<int,int> t = split_val(root,k);//以 k 为关键值分裂
+        root = merge(merge(t.first,cnt),t.second);//依次合并，更新根
+    }
+    void insertrank(int k){
+        key[++cnt] = k; wei[cnt] = rand() % 1000000007; size[cnt]=1;
+        //申请一个节点，作为一棵树，其大小为 1
+        root = merge(root,cnt);
+    }
+};
+void solve(){
+    
+}
+signed main() {
+    IOS;
+    int _ = 1;
+    //cin >> _;
+    srand(time(0));
+    while (_--) {
+        solve();
+    }
+    return 0;
+}
