@@ -2,6 +2,7 @@
 #define IOS ios::sync_with_stdio(0), cin.tie(0)
 using ll = long long;
 using namespace std;
+//https://www.luogu.com.cn/problem/P1196
 template<typename T>
 struct DSUT {
     DSUT(int n) : fa(n + 1), sz(n + 1, 1) { 
@@ -27,11 +28,27 @@ struct DSUT {
     T queryval(int x,int y){
         return val[x] - val[y];
     }
-    std::vector<int> fa, sz;//父节点，到父节点的权值，集合大小
+    vector<int> fa, sz;//父节点，集合大小
+    //到父亲节点的权值
     vector<T>val;
 };
 void solve(){
-    
+    int n;cin >> n;
+    DSUT<int> dsu(3e4);
+    for(int i = 1;i <= n;++i){
+        char op;int x,y;
+        cin >> op >> x >> y;
+        if(op == 'M'){
+            if(!dsu.same(x,y))
+            dsu.merge(x,y,dsu.sz[dsu.find(y)] - dsu.val[y] + dsu.val[x]);
+        }else{
+            if(dsu.same(x,y)){
+                cout << max(abs(dsu.queryval(x,y)) - 1,0) << '\n';
+            }else{
+                cout << -1 << '\n';
+            }
+        }
+    }
 }
 signed main() {
     IOS;

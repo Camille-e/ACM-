@@ -1,13 +1,14 @@
 #include <bits/stdc++.h>
 using ll = long long;
 using namespace std;
-
+// https://www.luogu.com.cn/problem/P3372
 template<typename Info, typename Tag>
 struct SegmentTree {
 #define ls (id<<1)
 #define rs (id<<1|1)
     SegmentTree() = default;
     SegmentTree(int n) : n(n), info(n << 2) , tag(n << 2){}
+    //传(n + 1)数组
     SegmentTree(const vector<Info> &init) : SegmentTree((int)init.size() - 1) {
         auto build = [&](auto self, int id, int l, int r) ->void {
             if(l == r) {
@@ -78,8 +79,8 @@ struct SegmentTree {
 #undef ls
 #undef rs
     const int n;
-    std::vector<Info> info;
-    std::vector<Tag> tag;
+    vector<Info> info;
+    vector<Tag> tag;
 };
 
 constexpr ll INF = 1E18;
@@ -95,6 +96,7 @@ struct Info {
     ll mn = INF;
     ll mx = -INF;
     ll sum = 0;
+    //记得输入长度
     ll len = 0;
     void apply(const Tag &dx) {
         mn += dx.add;
@@ -105,15 +107,32 @@ struct Info {
 
 Info operator+(const Info &x, const Info &y) {
     Info res;
-    res.mn = std::min(x.mn, y.mn);
-    res.mx = std::max(x.mx, y.mx);
+    res.mn = min(x.mn, y.mn);
+    res.mx = max(x.mx, y.mx);
     res.sum = x.sum + y.sum;
     res.len = x.len + y.len;
     return res;
 }
 
 void solve(){
-    
+    int n,m;
+    cin >> n >> m;
+    vector<Info>a(n + 1);
+    for(int i = 1;i <= n;++i){
+        cin >> a[i].sum;
+        a[i].len = 1;
+    }
+    SegmentTree<Info,Tag> tree(a);
+    for(int i = 0;i < m;++i){
+        int op,x,y;ll k;
+        cin >> op >> x >> y;
+        if(op == 1){
+            cin >> k;
+            tree.rangeUpdate(x,y,{k});
+        }else{
+            cout << tree.rangeQuery(x,y).sum << '\n';
+        }
+    }
 }
 signed main() {
     ios::sync_with_stdio(0),cin.tie(0);

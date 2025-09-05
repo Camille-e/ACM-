@@ -6,6 +6,7 @@ using i128 = __int128_t ;
 using namespace std;
 const int mod = 1e9 + 7;
 const int maxn = 1e5 + 2;
+//https://www.luogu.com.cn/problem/P5854
 template<typename T>
 struct CT{
     int n;
@@ -32,7 +33,19 @@ struct CT{
     }
 };
 void solve(){
-    
+    int n;cin >> n;
+    vector<int>a(n + 1);
+    for(int i = 1;i <= n;++i){
+        cin >> a[i];
+    }
+    CT tree(n,a);
+    tree.build();
+    ll resl = 0,resr = 0;
+    for(int i = 1;i <= n;++i){
+        resl ^= 1ll * i * (tree.left[i] + 1);
+        resr ^= 1ll * i * (tree.right[i] + 1);
+    }
+    cout << resl << ' ' << resr << '\n';
 }
 signed main() {
     IOS;
