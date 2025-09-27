@@ -6,13 +6,17 @@ using i128 = __int128_t ;
 using namespace std;
 const int mod = 1e9 + 7;
 const int maxn = 1e5 + 2;
+//https://www.luogu.com.cn/problem/P6136
+template<typename T>
 struct FHQ{
     int n,cnt,root;
-    vector<int>key,wei,size,reverse;
+    vector<int>wei,size;
+    vector<T>key;
     //0: 左孩子,1: 右孩子
     vector<array<int,2>>son;
     FHQ (const int&_n) : n(_n){
-        key = wei = size = reverse = vector<int>(n + 1);
+        wei = size = vector<int>(n + 1);
+        key = vector<T>(n + 1);
         son = vector<array<int,2>>(n + 1);
         cnt = 0;
         root = 0;
@@ -20,43 +24,17 @@ struct FHQ{
     void up(int u){
         size[u] = size[son[u][0]] + size[son[u][1]] + 1;
     }
-    //懒标记
-    void down(int i){
-        if(reverse[i]){
-            swap(son[i][0],son[i][1]);
-            reverse[son[i][0]] ^= 1;
-            reverse[son[i][1]] ^= 1;
-            reverse[i] = 0;
-        }
-    }
     //返回分裂的左右树的根
-    //分裂为小于等于k的和大于k的
-    pair<int,int> split_rank(int u,int k){
-        if(!u) return pair<int,int>{0,0};
-        down(u);
-        if(size[son[u][0]] + 1 <= k){
-            pair<int,int> t = split_rank(son[u][1],k - size[son[u][0]] - 1);
-            son[u][1] = t.first;
-            up(u);
-            return pair<int,int>{u,t.second};
-        }else{
-            pair<int,int> t = split_rank(son[u][0],k);
-            son[u][0] = t.second;
-            up(u);
-            return pair<int,int>{t.first,u};
-        }
-    }
     //分裂为小于k的和大于等于k的
-    pair<int,int> split_val(int u,int k){
+    pair<int,int> split(int u,T k){
         if(!u) return pair<int,int>{0,0};
-        down(u);
         if(key[u] < k){
-            pair<int,int> t = split_val(son[u][1],k);
+            pair<int,int> t = split(son[u][1],k);
             son[u][1] = t.first;
             up(u);
             return pair<int,int>{u,t.second};
         }else{
-            pair<int,int> t = split_val(son[u][0],k);
+            pair<int,int> t = split(son[u][0],k);
             son[u][0] = t.second;
             up(u);
             return pair<int,int>{t.first,u};
@@ -66,32 +44,97 @@ struct FHQ{
     int merge(int u,int v){
         if(!u || !v) return u + v;
         if(wei[u] < wei[v]){
-            down(u);
             son[u][1] = merge(son[u][1],v);
             up(u);
             return u;
         }else{
-            down(v);
             son[v][0] = merge(u,son[v][0]);
             up(v);
             return v;
         }
     }
     //插入一个数
-    void insertval(int k){
+    void insert(T k){
         key[++cnt] = k; wei[cnt] = rand() % 1000000007; size[cnt]=1;
         //申请一个节点，作为一棵树，其大小为 1
-        pair<int,int> t = split_val(root,k);//以 k 为关键值分裂
+        pair<int,int> t = split(root,k);//以 k 为关键值分裂
         root = merge(merge(t.first,cnt),t.second);//依次合并，更新根
     }
-    void insertrank(int k){
-        key[++cnt] = k; wei[cnt] = rand() % 1000000007; size[cnt]=1;
-        //申请一个节点，作为一棵树，其大小为 1
-        root = merge(root,cnt);
+    // 删除一个数
+    void eraser(T k){
+        pair<int,int> x,y;
+        //大于等于k的
+        x = split(root,k);
+        //大于k的
+        y = split(x.second,k + 1);
+        y.first = merge(son[y.first][0],son[y.first][1]);
+        root = merge(x.first,merge(y.first,y.second));
+    }
+    //查询一个数在树中的id
+    int findid(int i,T num){
+        if(!i)return 0;
+        if(key[i] == num)return i;
+        if(key[i] > num)return findid(son[i][0],num);
+        return findid(son[i][1],num);
+    }
+    //查询排名
+    int findrank(T num){
+        pair<int,int>x = split(root,num);
+        int ans =  size[x.first] + 1;
+        root = merge(x.first,x.second);
+        return ans;
+    }
+    //根据排名找数
+    T findnum(int k){
+        int pos = root;
+        while(pos){
+            if(k == size[son[pos][0]] + 1)return key[pos];
+            else if(k <= size[son[pos][0]])pos = son[pos][0];
+            else {k -= size[son[pos][0]] + 1; pos = son[pos][1];}
+        }
+    }
+    //前驱
+    T lst(T num){
+        return findnum(findrank(num) - 1);
+    }
+    //后继
+    T nxt(T num){
+        return findnum(findrank(num + 1));
     }
 };
 void solve(){
-    
+    int n,m;
+    cin >> n >> m;
+    FHQ<int> treap(n + m);
+    for(int i = 1;i <= n;++i){
+        int x;cin >> x;
+        treap.insert(x);
+    }
+    int ans = 0;
+    int last = 0;
+    for(int i = 1;i <= m;++i){
+        int op,x;
+        cin >> op >> x;
+        x ^= last;
+        if(op == 1){
+            treap.insert(x);
+        }else if(op == 2){
+            treap.eraser(x);
+        }else if(op == 3){
+            last = treap.findrank(x);
+            ans ^= last;
+        }else if(op == 4){
+            last = treap.findnum(x);
+            ans ^= last;
+        }else if(op == 5){
+            last = treap.lst(x);
+            ans ^= last;
+        }else{
+            last = treap.nxt(x);
+            ans ^= last;
+        }
+    }
+    cout << ans << '\n';
 }
 signed main() {
     IOS;

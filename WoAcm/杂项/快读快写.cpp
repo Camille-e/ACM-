@@ -1,13 +1,18 @@
 #include<bits/stdc++.h>
 template<typename T>
-inline void read(T &x){
-	T w=1; x=0; 
-	char c=getchar(); 
-	while(!isdigit(c)){ w|=(c=='-'); c=getchar();}  
-	while(isdigit(c)){ x=(x<<1)+(x<<3)+(c^48); c=getchar();} 
-	x=x*w;
+inline void read(T &x) {
+    int w = 1; x = 0;
+    char c = getchar();
+    while (!isdigit(c)) {
+        if (c == '-') w = -1;
+        c = getchar();
+    }
+    while (isdigit(c)) {
+        x = (x << 3) + (x << 1) + (c ^ '0');
+        c = getchar();
+    }
+    x = x * w;
 }
-
 template<typename T>
 inline void write1(T x){
     if(x<0){ putchar('-'); x=(~x)+1;}

@@ -27,9 +27,12 @@ template<typename T>
 vector<T> divpri(T k){
     vector<T> fact;
     for (T i = 2; i * i <= k; i++){
+        bool f = 0;
         while (k % i == 0){
             k /= i;
+            f = 1;
         }
+        if(f)
         fact.emplace_back(i);
     }
     if (k > 1){

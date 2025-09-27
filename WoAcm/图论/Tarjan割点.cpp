@@ -7,6 +7,7 @@ using namespace std;
 struct CUTP{
     int n;vector<vector<int>>g;
     vector<int>dfn,low,cut;
+    //cut[i] == 1代表i是割点
     CUTP (const int &_n) : n(_n){
         g = vector<vector<int>>(n + 1);
         dfn = low = cut = vector<int>(n + 1);
@@ -45,7 +46,21 @@ struct CUTP{
     }
 };
 void solve(){
-    
+    int n,m;
+    cin >> n >> m;
+    CUTP tar(n);
+    for(int i = 0;i < m;++i){
+        int u,v;cin >> u >> v;
+        tar.addedge(u,v);
+    }
+    tar.build();
+    int sum = accumulate(tar.cut.begin(),tar.cut.end(),0);
+    cout << sum << '\n';
+    for(int i = 1;i <= n;++i){
+        if(tar.cut[i]){
+            cout << i << " \n"[i == n];
+        }
+    }
 }
 signed main() {
     IOS;

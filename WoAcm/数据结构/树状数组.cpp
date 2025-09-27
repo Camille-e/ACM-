@@ -20,6 +20,7 @@ struct Fenwick {
     T range(int l, int r) {
         return query(r) - query(l - 1);
     }
+    //查询全局第k小
     T kth(T k) {
         int pos = 0;
         int logn = bit_width(v.size() - 1);

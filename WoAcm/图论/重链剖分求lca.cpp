@@ -1,74 +1,62 @@
 #include <bits/stdc++.h>
 using namespace std;
-struct HLD {
-    HLD(const int &_n) : n(_n), v(_n + 1) {
-        fa = dep = son = sz = top = dfn = out = seg = vector<int>(_n + 1);
+struct HLD{
+    HLD(const int & n) : n(n), g(n + 1) {
+        deep = fa = sz = son = top = dfn = seg = vector<int>(n + 1);
     }
-
-    void addEdge(const int &x, const int &y) {
-        v[x].push_back(y);
-        v[y].push_back(x);
+    void build(int root = 1){
+        dfs(root,0);
+        dfs1(root,root);
     }
-
-    void dfs1(int id, int &t) { 
-        sz[id] = 1;
-        dfn[id] = t;
-        seg[t] = id;
-        for(const auto &nxt : v[id]) {
-            if(nxt == fa[id]) continue;
-            fa[nxt] = id;
-            dep[nxt] = dep[id] + 1;
-            dfs1(nxt, ++t);
-            sz[id] += sz[nxt];
-            if(sz[son[id]] < sz[nxt]) {
-                son[id] = nxt;
+    int n;
+    vector<int>deep,fa,sz,son,top,dfn,seg;
+    vector<vector<int>>g;
+    void addedge(const int & x ,const int & y){
+        g[x].push_back(y);
+        g[y].push_back(x);
+    }
+    void dfs(int i,int f){
+        deep[i] = deep[f] + 1;
+        sz[i] = 1;
+        fa[i] = f;
+        for(const int & to : g[i]){
+            if(to != f){
+                dfs(to,i);
+                sz[i] += sz[to];
+                if(sz[to] > sz[son[i]]){
+                    son[i] = to;
+                }
             }
         }
-        out[id] = t;
-    }
-    void dfs2(int id, int t) {
-        top[id] = t;
-        if(son[id] == 0) return;
-        dfs2(son[id], t);
-        for(const auto &nxt : v[id]) {
-            if(nxt == fa[id] || nxt == son[id]) continue;
-            dfs2(nxt, nxt);
-        }
-    }
-    void work(int root = 1) {
-        int dfsn = 1;
-        dfs1(root, dfsn);
-        dfs2(root, root);
-    }
-
-    bool isAncestor(int x, int y) {
-        return dfn[x] <= dfn[y] && out[x] >= out[y];
-    }
-
-    int lca(int x, int y) {
-        while(top[x] != top[y]) { 
-            if(dep[top[x]] < dep[top[y]]) {
-                swap(x, y);
+    };
+    int cntd = 0;
+    void dfs1(int i,int t){
+        top[i] = t;
+        dfn[i] = ++cntd;
+        seg[cntd] = i;
+        if(son[i] == 0)return;
+        dfs1(son[i],t);
+        for(const int & to : g[i]){
+            if(to != son[i] && to != fa[i]){
+                dfs1(to,to);
             }
-            x = fa[top[x]];
         }
-        return (dep[x] < dep[y] ? x : y);
+    };
+    int queryLCA(int u,int v){
+        while(top[u] != top[v]){
+            if(deep[top[u]] < deep[top[v]]){
+                swap(u,v);
+            }
+            u = fa[top[u]];
+        }
+        return dfn[u] < dfn[v] ? u : v;
     }
-
-    int dis(int x, int y) {
-        return dep[x] + dep[y] - 2 * dep[lca(x, y)];
-    }
-
     int kth(int id, int k) {
-        if(k > dep[id]) return 0;
-        while(dep[id] - dep[top[id]] + 1 <= k) {
-            k -= (dep[id] - dep[top[id]] + 1);
+        if(k > deep[id]) return 0;
+        while(deep[id] - deep[top[id]] + 1 <= k) {
+            k -= (deep[id] - deep[top[id]] + 1);
             id = fa[top[id]];
         }
         return seg[dfn[id] - k];
     }
-
-    vector<vector<int>> v;
-    vector<int> fa, dep, son, sz, top, dfn, out, seg;
-    int n;
 };
