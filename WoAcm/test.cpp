@@ -19,6 +19,16 @@ mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
 auto rnd = [](ll l, ll r) { return (l <= r ? uniform_int_distribution<ll>(l, r)(rng) : 0); };
 const int mod = 1e9 + 7;
 const int maxn = 1e5 + 2;
+inline ll floor(ll a,ll b){ 
+    if(b < 0) a = -a, b = -b;
+    if(a >= 0) return a / b;
+    return - ( ( -a + b - 1 ) / b );
+}
+inline ll ceil(ll a,ll b){ 
+    if(b < 0) a = -a, b = -b;
+    if(a >= 0) return (a + b - 1) / b;
+    return - ( (-a) / b );
+}
 ll ksm(ll a,ll b){
     ll res = 1;
     a %= mod;

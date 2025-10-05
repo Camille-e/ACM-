@@ -76,6 +76,27 @@ struct SegmentTree {
         }
         return res;
     }
+    int findFirst(int x, int y, auto check) {
+        Info pre;
+        return findFirst(1, 1, n, x, y, pre, check);
+    }
+    int findFirst(int id, int l, int r, int x, int y, Info& pre, auto check) {
+        if(x <= l && r <= y) {
+            if(!check(pre + info[id])) {
+                pre = pre + info[id];
+                return -1;
+            } else if(l == r) {
+                return l;
+            }
+        }
+        int mid = (l + r) / 2;
+        pushdown(id);
+        if(x <= mid) {
+            int res = findFirst(ls, l, mid, x, y, pre, check);
+            if(res != -1) return res;
+        }
+        return findFirst(rs, mid + 1, r, x, y, pre, check);
+    }
 #undef ls
 #undef rs
     const int n;
