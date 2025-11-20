@@ -17,9 +17,11 @@ typedef struct point{
         return y < b.y;
     }
 }P;
+//计算距离
 auto calc(P a,P b){
     return sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
 }
+//计算叉积
 auto cross(P a,P b,P c){
     return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }

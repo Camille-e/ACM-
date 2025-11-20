@@ -37,6 +37,9 @@ struct Inv_fac{
         };
         build();
     }
+    ll C(int a,int b){
+        return fac[a] * facinv[a - b] % mod * facinv[b] % mod;
+    }
 };
 void solve(){
     

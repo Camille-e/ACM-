@@ -17,7 +17,7 @@ struct ST{
         b = a;
     };
     void buildmi(){
-        stmi = vector<vector<int>>(n + 1,vector<int>(m + 1));
+        stmi = vector<vector<T>>(n + 1,vector<T>(m + 1));
         for(int i = 1;i <= n;++i){
             stmi[i][0] = b[i];
         }
@@ -28,7 +28,7 @@ struct ST{
         }
     }
     void buildmx(){
-        stmx = vector<vector<int>>(n + 1,vector<int>(m + 1));
+        stmx = vector<vector<T>>(n + 1,vector<T>(m + 1));
         for(int i = 1;i <= n;++i){
             stmx[i][0] = b[i];
         }
@@ -39,7 +39,7 @@ struct ST{
         }
     }
     void buildgcd(){
-        stgcd = vector<vector<int>>(n + 1,vector<int>(m + 1));
+        stgcd = vector<vector<T>>(n + 1,vector<T>(m + 1));
         for(int i = 1;i <= n;++i){
             stgcd[i][0] = b[i];
         }
