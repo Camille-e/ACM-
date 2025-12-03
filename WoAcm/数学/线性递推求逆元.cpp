@@ -21,6 +21,7 @@ struct Inv_fac{
         }
         return res;
     }
+    //保证n < mod
     Inv_fac(const int & _n) : n(_n){
         facinv = inv = fac = vector<ll>(n + 1);
         auto build = [&](){
@@ -28,17 +29,21 @@ struct Inv_fac{
             inv[1] = 1;
             for(int i = 2;i <= n;++i){
                 fac[i] = fac[i - 1] * i % mod;
-                inv[i] = mod - inv[mod % i] * (mod / i) % mod;
+                inv[i] = 1ll * mod - inv[mod % i] * (mod / i) % mod;
             }
             facinv[n] = ksm(fac[n],mod - 2);
             for(int i = n - 1;i >= 0;--i){
-                facinv[i] = (i + 1) * facinv[i + 1] % mod;
+                facinv[i] = facinv[i + 1] * (i + 1) % mod;
             }
         };
         build();
     }
     ll C(int a,int b){
+        if(a < b)return 0ll;
         return fac[a] * facinv[a - b] % mod * facinv[b] % mod;
+    }
+    ll lucas(int a,int b,int mod){
+        return C(a / mod,b / mod) * C(a % mod,b % mod) % mod;
     }
 };
 void solve(){

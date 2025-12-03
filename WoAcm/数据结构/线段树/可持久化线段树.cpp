@@ -92,14 +92,27 @@ struct PersistentTree {
     int kth(int versionl, int versionr, int k) {
         return kth(root[versionl], root[versionr], 1, n, k);
     }
-    int kth(int idx, int idy, int l, int r, int k) { //静态区间第k小，不支持修改
+    int treekth(int versionu, int versionv, int versionlca,int versionflca,int k) {
+        return treekth(root[versionu], root[versionv], root[versionlca], root[versionflca], 1, n, k);
+    }
+    int kth(int vl, int vr, int l, int r, int k) { //静态区间第k小，不支持修改
         if(l >= r) return l;
         int mid = (l + r) / 2;
-        int dx = node[ls(idy)].info.sum - node[ls(idx)].info.sum;
-        if(dx >= k) {
-            return kth(ls(idx), ls(idy), l, mid, k);
-        } else {
-            return kth(rs(idx), rs(idy), mid + 1, r, k - dx);
+        int dx = node[ls(vr)].info.sum - node[ls(vl)].info.sum;
+        if(dx >= k){
+            return kth(ls(vl),ls(vr),l,mid,k);
+        }else{
+            return kth(rs(vl),rs(vr),mid + 1,r,k - dx);
+        }
+    }
+    int treekth(int vu, int vv, int vlca,int vflca,int l, int r, int k) { //静态路径第k小，不支持修改
+        if(l >= r) return l;
+        int mid = (l + r) / 2;
+        int dx = node[ls(vu)].info.sum + node[ls(vv)].info.sum - node[ls(vlca)].info.sum - node[ls(vflca)].info.sum;
+        if(dx >= k){
+            return treekth(ls(vu),ls(vv),ls(vlca),ls(vflca),l,mid,k);
+        }else{
+            return treekth(rs(vu),rs(vv),rs(vlca),rs(vflca),mid + 1,r,k - dx);
         }
     }
 #undef ls
@@ -131,9 +144,7 @@ Info operator+(const Info &x, const Info &y) {
 }
 //主席树(单点修改，历史版本区间查询, 静态区间第k小)
 //https://www.luogu.com.cn/problem/P3834
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
+void slove(){
     int n, q;
     cin >> n >> q;
     vector<int> v(n + 1), tmp(n + 1);
@@ -156,6 +167,15 @@ int main() {
         cin >> l >> r >> k;
         int pos = tr.kth(version[l - 1], version[r], k);
         cout << tmp[pos] << '\n';
+    }
+}
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int _ = 1;
+    // cin >> _;
+    while(_--){
+        slove();
     }
     return 0;
 }
