@@ -42,6 +42,10 @@ struct Inv_fac{
         if(a < b)return 0ll;
         return fac[a] * facinv[a - b] % mod * facinv[b] % mod;
     }
+    ll A(int a,int b){
+        if(a < b)return 0ll;
+        return fac[a] * facinv[a - b] % mod;
+    }
     ll lucas(int a,int b,int mod){
         return C(a / mod,b / mod) * C(a % mod,b % mod) % mod;
     }

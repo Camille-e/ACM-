@@ -12,7 +12,8 @@ using i128 = __int128_t ;
 using namespace std;
 // using namespace __gnu_pbds;
 //内部平衡树
-//typedef tree<int,null_type,less<int>,rb_tree_tag,tree_order_statistics_node_update> ordered_set;
+// typedef tree<int,null_type,less<int>,rb_tree_tag,tree_order_statistics_node_update> ordered_set;
+// typedef tree<ll, null_type, less_equal<ll>, rb_tree_tag, tree_order_statistics_node_update> ordered_multiset;
 //随机数
 //rnd(1,1e18)
 mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());

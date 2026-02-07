@@ -27,6 +27,16 @@ struct DSU{
     int size(int x){
         return sz[find(x)];
     }
+    // 链式并查集遍历
+    // t = l;
+    // while(t <= r){
+    //     int nxt = dsu.find(t) + 1;
+    //     if(nxt == t + 1){
+    //         pos++;
+    //         dsu.merge(t,nxt);
+    //     }
+    //     t = find(t);
+    // }
 };
 void solve(){
     int n,m;
