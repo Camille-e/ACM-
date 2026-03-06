@@ -213,6 +213,9 @@ struct HLD{
         }
         return dfn[u] < dfn[v] ? u : v;
     }
+    int dis(int x, int y) {
+        return deep[x] + deep[y] - 2 * deep[queryLCA(x, y)];
+    }
     // ll querymx(int u,int v){
     //     ll res = -1e11;
     //     while(top[u] != top[v]){

@@ -2,8 +2,8 @@
 using ll = long long;
 using namespace std;
 constexpr double PI = numbers::pi_v<double>;
-//一般用这个
 //https://www.luogu.com.cn/problem/P3803
+//1表示正变换,-1表示逆变换
 void FFT(vector<complex<double>> &A, int opt = 1) {
     int n = A.size();
     vector<int> p(n);
@@ -57,6 +57,7 @@ template<typename T>
 vector<T> convolution(const vector<T> &A, vector<T> kernel) {
     reverse(kernel.begin(), kernel.end());
     auto res = multiply(A, kernel);
+    //return res;
     return vector(res.begin() + kernel.size() - 1, res.begin() + A.size());
 }
 

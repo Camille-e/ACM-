@@ -80,6 +80,7 @@ struct SegmentTree {
         Info pre;
         return findFirst(1, 1, n, x, y, pre, check);
     }
+    //确保范围中至少存在一个满足条件的位置
     int findFirst(int id, int l, int r, int x, int y, Info& pre, auto check) {
         if(x <= l && r <= y) {
             if(!check(pre + info[id])) {
