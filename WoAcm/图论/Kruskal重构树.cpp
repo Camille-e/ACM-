@@ -18,6 +18,7 @@ struct DSU{
     bool same(int u,int v){
         return find(u) == find(v);
     }
+    //代表节点当父亲要传到第一个
     int merge(int f,int z){
         f = find(f),z = find(z);
         sz[f] += sz[z];
@@ -91,59 +92,40 @@ struct HLD{
 mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
 auto rnd = [](ll l, ll r) { return (l <= r ? uniform_int_distribution<ll>(l, r)(rng) : 0); };
 void solve(){
-    int n,m;
-    cin >> n >> m;
+    int n,m;cin >> n >> m;
+    vector<vector<int>>g(n + 1);
     vector<array<int,3>>edges(m + 1);
     for(int i = 1;i <= m;++i){
-        cin >> edges[i][0] >> edges[i][1] >> edges[i][2];
+        cin >> edges[i][1] >> edges[i][2] >> edges[i][0];
     }
-    sort(edges.begin() + 1,edges.end(),[&](array<int,3>&a,array<int,3>&b){
-        return a[2] < b[2];
-    });
+    sort(edges.begin() + 1,edges.end());
     DSU dsu(n * 2 + 1);
-    HLD tree(n * 2 + 1);
-    int node = n;
-    vector<int>a(n * 2 + 1);
+    HLD tree(2 * n);
+    int cnt = n;
+    vector<int>val(2 * n + 1);
     for(int i = 1;i <= m;++i){
-        auto [u,v,val] = edges[i];
+        auto [w,u,v] = edges[i];
         if(!dsu.same(u,v)){
-            u = dsu.find(u),v = dsu.find(v);
-            node++;
-            tree.addedge(node,u);
-            tree.addedge(node,v);
-            dsu.merge(node,u);
-            dsu.merge(node,v);
-            a[node] = val;
+            int f1 = dsu.find(u),f2 = dsu.find(v);
+            ++cnt;
+            tree.addedge(f1,cnt);
+            tree.addedge(f2,cnt);
+            //代表节点当父亲要传到第一个
+            dsu.merge(cnt,f1);
+            dsu.merge(cnt,f2);
+            val[cnt] = w;
         }
     }
-    for(int i = node;i >= 1;--i){
-        if(tree.deep[i] == 0)
-        tree.build(i);
-    }
-    vector<int>vis(node + 1);
-    int cnt = 1;
-    auto dfs = [&](auto && dfs,int i,int fa)->void
-    {
-        vis[i] = cnt;
-        for(int to : tree.g[i]){
-            if(to != fa){
-                dfs(dfs,to,i);
-            }
-        }
-    };
-    for(int i = 1;i <= node;++i){
-        if(!vis[i]){
-            dfs(dfs,i,0);
-            cnt++;
-        }
+    for(int i = cnt;i >= 1;--i){
+        if(tree.deep[i] == 0)tree.build(i);
     }
     int q;cin >> q;
     for(int i = 1;i <= q;++i){
         int u,v;cin >> u >> v;
-        if(vis[u] != vis[v]){
+        if(!dsu.same(u,v)){
             cout << "impossible\n";
         }else{
-            cout << a[tree.queryLCA(u,v)] << '\n';
+            cout << val[tree.queryLCA(u,v)] << '\n';
         }
     }
 }

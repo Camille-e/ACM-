@@ -4,20 +4,22 @@ using ull = unsigned long long;
 using i128 = __int128_t ;
 #define IOS ios::sync_with_stdio(0), cin.tie(0)
 using namespace std;
-// https://www.luogu.com.cn/problem/P4103
+// https://www.luogu.com.cn/problem/P2495
 const int mod = 1e9 + 7;
 const int maxn = 2e5 + 2;
 struct HLD{
     HLD(const int & n) : n(n), g(n + 1) {
         deep = fa = sz = son = top = dfn = seg = vector<int>(n + 1);
+        e = vector<ll>(n + 1);
     }
     int n;
     vector<int> deep, fa, sz, son, top, dfn, seg;
-    vector<vector<int>> g;
+    vector<ll> e;
+    vector<vector<pair<int,int>>> g;
     int cntd = 0;
-    void addedge(const int & x, const int & y){
-        g[x].push_back(y);
-        g[y].push_back(x);
+    void addedge(const int & x, const int & y,const int & w){
+        g[x].push_back({y,w});
+        g[y].push_back({x,w});
     }
     void build(int root = 1){
         dfs(root, 0);
@@ -27,8 +29,9 @@ struct HLD{
         deep[i] = deep[f] + 1;
         fa[i] = f;
         sz[i] = 1;
-        for(const int & to : g[i]){
+        for(const auto & [to,w] : g[i]){
             if(to == f) continue;
+            e[to] = e[i] + w;
             dfs(to, i);
             sz[i] += sz[to];
             if(sz[to] > sz[son[i]]) son[i] = to;
@@ -40,7 +43,7 @@ struct HLD{
         seg[cntd] = i;
         if(!son[i]) return;
         dfs1(son[i], t);
-        for(const int & to : g[i]){
+        for(const auto & [to,w] : g[i]){
             if(to != fa[i] && to != son[i]){
                 dfs1(to, to);
             }
@@ -55,6 +58,9 @@ struct HLD{
     }
     int dis(int x, int y) {
         return deep[x] + deep[y] - 2 * deep[queryLCA(x, y)];
+    }
+    ll edis(int x,int y){
+        return e[x] + e[y] - 2 * e[queryLCA(x,y)];
     }
     bool isAncestor(int u, int v){
         return dfn[u] <= dfn[v] && dfn[v] <= dfn[u] + sz[u] - 1;
@@ -111,11 +117,63 @@ auto rnd = [](ll l, ll r) { return (l <= r ? uniform_int_distribution<ll>(l, r)(
 void solve(){
     int n;cin >> n;
     HLD tree(n);
+    map<pair<int,int>,int>hash;
     for(int i = 1;i < n;++i){
-        int u,v;cin >> u >> v;
-        tree.addedge(u,v);
+        int u,v,w;cin >> u >> v >> w;
+        tree.addedge(u,v,w);
+        hash[{min(u,v),max(u,v)}] = w;
     }
     tree.build();
+    int p = __lg(n + 1);
+    auto &deep = tree.deep;
+    auto &g = tree.g;
+    vector<vector<ll>>stmi(n + 1,vector<ll>(p + 2,1e18)),st(n + 1,vector<ll>(p + 2));
+    auto dfs = [&](auto &&dfs,int i,int fa)->void
+    {
+        if(hash.count({min(i,fa),max(i,fa)}))
+        stmi[i][0] = hash[{min(i,fa),max(i,fa)}];
+        st[i][0] = fa;
+        for(int j = 1;(1 << j) <= deep[i];++j){
+            stmi[i][j] = min(stmi[i][j - 1],stmi[st[i][j - 1]][j - 1]);
+            st[i][j] = st[st[i][j - 1]][j - 1];
+        }
+        for(int j = 0;j < tree.g[i].size();++j){
+            if(g[i][j].first != fa){
+                dfs(dfs,g[i][j].first,i);
+            }
+        }
+    };
+    dfs(dfs,1,0);
+    // for(int i = 1;i <= n;++i){
+    //     for(int j = 0;j <= p;++j){
+    //         cout << stmi[i][j] << " \n"[j == p];
+    //     }
+    // }
+    auto qiumi = [&](int u,int v){
+        if(u == v)return 0ll;
+        auto lca = tree.queryLCA(u,v);
+        int k = 32 - __builtin_clz(deep[u]);
+        ll mi1 = 1e18,mi2 = 1e18;
+        for(int j = k - 1;j >= 0;--j){
+            if(deep[st[u][j]] >= deep[lca]){
+                mi1 = min(mi1,stmi[u][j]);
+                u = st[u][j];
+            }
+        }
+        k = 32 - __builtin_clz(deep[v]);
+        for(int j = k - 1;j >= 0;--j){
+            if(deep[st[v][j]] >= deep[lca]){
+                mi2 = min(mi2,stmi[v][j]);
+                v = st[v][j];
+            }
+        }
+        return min(mi1,mi2);
+    };
+    // for(int i = 1;i <= n;++i){
+    //     for(int j = 1;j <= n;++j){
+    //         cout << qiumi(i,j) << " \n"[j == n];
+    //     }
+    // }
     int q;cin >> q;
     for(int i = 1;i <= q;++i){
         int len;cin >> len;
@@ -123,31 +181,25 @@ void solve(){
         for(int j = 1;j <= len;++j){
             cin >> tmp[j - 1];
         }
+        tmp.push_back(1);
         auto [g,ok,rid] = tree.buildVirtualTree(tmp);
+        ok[1] = 0;
         int kn = g.size() - 1;
-        vector<ll>dp(kn + 1),dpf(kn + 1),cnt(kn + 1);
-        vector<int>mx(kn + 1),mn(kn + 1,1e9),mxf(kn + 1),mnf(kn + 1,1e9);
+        vector<ll>dp(kn + 1);
         auto dfs = [&](auto && dfs,int i,int fa)->void
         {
-            if(ok[i]){
-                cnt[i] = 1;
-                mnf[i] = 0;
-            }
-            for(auto& to : g[i]){
+            if(ok[i])dp[i] = 1e18;
+            for(auto to : g[i]){
                 if(to == fa)continue;
                 dfs(dfs,to,i);
-                int d = tree.dis(rid[i],rid[to]);
-                dp[i] = dp[i] + dp[to] + dpf[i] * cnt[to] + dpf[to] * cnt[i] + cnt[to] * cnt[i] * d;
-                dpf[i] = dpf[i] + dpf[to] + cnt[to] * d;
-                cnt[i] = cnt[i] + cnt[to];
-                mx[i] = max({mx[i],mx[to],mxf[i] + mxf[to] + d});
-                mn[i] = min({mn[i],mn[to],mnf[i] + mnf[to] + d});
-                mxf[i] = max(mxf[i],mxf[to] + d);
-                mnf[i] = min(mnf[i],mnf[to] + d);
+                auto id1 = rid[i],id2 = rid[to];
+                if(ok[i] == 0)
+                dp[i] = min(dp[to],qiumi(id1,id2)) + dp[i];
+
             }
         };
         dfs(dfs,1,0);
-        cout << dp[1] << ' ' << mn[1] << ' ' << mx[1] << '\n';
+        cout << dp[1] << '\n';
     }
 }
 signed main() {
