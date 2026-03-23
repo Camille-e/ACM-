@@ -19,6 +19,7 @@ struct DSU{
     }
     int merge(int f,int z){
         f = find(f),z = find(z);
+        if(f == z)return f;
         if(sz[f] < sz[z])swap(f,z);
         sz[f] += sz[z];
         fa[z] = f;

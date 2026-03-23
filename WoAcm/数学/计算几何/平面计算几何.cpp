@@ -68,9 +68,11 @@ template<class T> struct Line {
         return os << "<" << l.a << ", " << l.b << ">";
     }
 };
+//大于0,点在直线左边
 template<class T> T cross(Point<T> a, Point<T> b) { // 叉乘
     return a.x * b.y - a.y * b.x;
 }
+//(p0 -> p1,p2)
 template<class T> T cross(Point<T> p1, Point<T> p2, Point<T> p0) { // 叉乘 (p1 - p0) x (p2 - p0);
     return cross(p1 - p0, p2 - p0);
 }
@@ -729,6 +731,44 @@ template<class T> vector<Point<T>> halfcut(vector<Line<T>> lines) { // 半平面
     ps.push_back(lineIntersection(ls[0], ls.back()));
     return vector(ps.begin(), ps.end());
 }
+template<class T>
+vector<Point<T>> lowerConvexHull(vector<Point<T>> A, int flag = 1) { 
+    // 只求下凸壳
+    // flag = 0：保留边上点
+    // flag = 1：去掉边上共线点
+    int n = A.size();
+    if (n <= 1) return A;
+    sort(A.begin(), A.end());
+    vector<Point<T>> hull;
+    for (int i = 0; i < n; ++i) {
+        while ((int)hull.size() >= 2 &&
+               cross(A[i], hull.back(), hull[(int)hull.size() - 2]) < flag) {
+            hull.pop_back();
+        }
+        hull.push_back(A[i]);
+    }
+    return hull;
+}
+
+template<class T>
+vector<Point<T>> upperConvexHull(vector<Point<T>> A, int flag = 1) { 
+    // 只求上凸壳
+    // flag = 0：保留边上点
+    // flag = 1：去掉边上共线点
+    int n = A.size();
+    if (n <= 1) return A;
+    sort(A.begin(), A.end());
+    vector<Point<T>> hull;
+    for (int i = n - 1; i >= 0; --i) {
+        while ((int)hull.size() >= 2 &&
+               cross(A[i], hull.back(), hull[(int)hull.size() - 2]) < flag) {
+            hull.pop_back();
+        }
+        hull.push_back(A[i]);
+    }
+    return hull;
+}
+
 void solve(){
     int n;cin >> n;
     vector<Pd>P(n);

@@ -76,52 +76,51 @@ struct SegmentTree {
         }
         return res;
     }
-    int findFirst(int x, int y, auto &check) {
-        Info pre;
-        return findFirst(1, 1, n, x, y, pre, &check);
+    //check满足条件时说明这个区间可能有答案
+    template<class F>
+    int findFirst(int x, int y, F check) {
+        Info pre{};
+        return findFirst(1, 1, n, x, y, pre, check);
     }
-    int findFirst(int id, int l, int r, int x, int y, Info &pre, auto &check) {
-        if (r < x || l > y) return -1; // 无交集
+    template<class F>
+    int findFirst(int id, int l, int r, int x, int y, Info &pre, F &check) {
+        if (r < x || l > y) return -1;
         if (x <= l && r <= y) {
-            if (!check(pre + info[id])) {
-                pre = pre + info[id];
+            Info cur = pre + info[id];
+            if (!check(cur)) {
+                pre = cur;
                 return -1;
             }
             if (l == r) return l;
         }
-        int mid = (l + r) >> 1;
         pushdown(id);
+        int mid = (l + r) >> 1;
         int res = -1;
-        if (x <= mid) {
-            res = findFirst(id << 1, l, mid, x, y, pre, check);
-        }
-        if (res == -1 && y > mid) {
-            res = findFirst(id << 1 | 1, mid + 1, r, x, y, pre, check);
-        }
+        if (x <= mid) res = findFirst(ls, l, mid, x, y, pre, check);
+        if (res == -1 && y > mid) res = findFirst(rs, mid + 1, r, x, y, pre, check);
         return res;
     }
-    int findLast(int x, int y, auto &check) {
-        Info suf;
-        return findLast(1, 1, n, x, y, suf, &check);
+    template<class F>
+    int findLast(int x, int y, F check) {
+        Info suf{};
+        return findLast(1, 1, n, x, y, suf, check);
     }
-    int findLast(int id, int l, int r, int x, int y, Info &suf, auto check) {
-        if (r < x || l > y) return -1; // 无交集
+    template<class F>
+    int findLast(int id, int l, int r, int x, int y, Info &suf, F &check) {
+        if (r < x || l > y) return -1;
         if (x <= l && r <= y) {
-            if (!check(info[id] + suf)) {
-                suf = info[id] + suf;
+            Info cur = info[id] + suf;
+            if (!check(cur)) {
+                suf = cur;
                 return -1;
             }
             if (l == r) return l;
         }
-        int mid = (l + r) >> 1;
         pushdown(id);
+        int mid = (l + r) >> 1;
         int res = -1;
-        if (y > mid) {
-            res = findLast(id << 1 | 1, mid + 1, r, x, y, suf, check);
-        }
-        if (res == -1 && x <= mid) {
-            res = findLast(id << 1, l, mid, x, y, suf, check);
-        }
+        if (y > mid) res = findLast(rs, mid + 1, r, x, y, suf, check);
+        if (res == -1 && x <= mid) res = findLast(ls, l, mid, x, y, suf, check);
         return res;
     }
 #undef ls
