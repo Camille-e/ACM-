@@ -51,22 +51,20 @@ struct Tarjan{
         }
     }
 };
-// 缩点 && 去重边
+// // 缩点 && 去重边
 // int pren = n;
-// 记得此时的n是缩点之后的n
-// 拓扑排序时可以直接利用tarjan逆拓扑的性质直接从后往前遍历
+// // 记得此时的n是缩点之后的n
+// // 拓扑排序时可以直接利用tarjan逆拓扑的性质直接从后往前遍历
 // n = tar.tot;
 // vector<vector<int>>g(n + 1);vector<int>in(n + 1),out(n + 1),vis(n + 1);
 // for(int i = 1;i <= n;++i){
 //     for(auto cur : tar.scc[i]){
 //         for(int to : tar.g[cur]){
-//             if(tar.bel[to] != i){
-//                 if(vis[tar.bel[to]] == 0){
-//                     vis[tar.bel[to]] = 1;
-//                     g[i].push_back(tar.bel[to]);
-//                     in[tar.bel[to]]++;
-//                     out[i]++;
-//                 }
+//             if(tar.bel[to] != i && !vis[tar.bel[to]]){
+//                 vis[tar.bel[to]] = 1;
+//                 g[i].push_back(tar.bel[to]);
+//                 in[tar.bel[to]]++;
+//                 out[i]++;
 //             }
 //         }
 //     }
