@@ -25,31 +25,32 @@ struct Tarjan{
         dfn[id] = low[id] = ++cnt;
         stk[++top] = id;
         int num = 0;
-        for(auto nxt : g[id]) {
-            if(!dfn[nxt]) {
+        for(auto to : g[id]) {
+            if(to == lst)continue;
+            if(!dfn[to]) {
                 num++;
-                estk[++etop] = {min(id,nxt),max(id,nxt)};
-                dfs(nxt, id);
-                low[id] = min(low[id], low[nxt]);
-                if(low[nxt] >= dfn[id]) {
+                estk[++etop] = {min(id,to),max(id,to)};
+                dfs(to, id);
+                low[id] = min(low[id], low[to]);
+                if(low[to] >= dfn[id]) {
                     ++tot;
                     while(true) {
                         int num = stk[top--];
                         vcc[tot].push_back(num);
-                        if(num == nxt) break;
+                        if(num == to) break;
                     }
                     while (true) {
                         auto e = estk[etop--];
                         vcc_edges[tot].push_back(e);
-                        if (e == make_pair(min(id, nxt), max(id, nxt))) {
+                        if (e == make_pair(min(id, to), max(id, to))) {
                             break;
                         }
                     }
                     vcc[tot].push_back(id);
                 }
-            } else if(nxt != lst && dfn[nxt] < dfn[id]) {
-                estk[++etop] = {min(id, nxt), max(id, nxt)};
-                low[id] = min(low[id], dfn[nxt]);
+            } else if(dfn[to] < dfn[id]) {
+                estk[++etop] = {min(id, to), max(id, to)};
+                low[id] = min(low[id], dfn[to]);
             }
         }
         if(lst == 0 && num == 0) {
@@ -72,7 +73,6 @@ struct Tarjan{
     }
 };
 // int pren = n;
-// //这是缩点后树上点的个数
 // n = tar.tot;
 void solve(){
     int n,m;

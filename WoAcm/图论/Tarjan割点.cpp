@@ -17,6 +17,7 @@ struct CUTP{
         dfn[id] = low[id] = ++cnt;
         int sz = 0; //儿子个数
         for(auto to : g[id]) {
+            if(to == fa)continue;
             if(!dfn[to]) {
                 sz++;
                 dfs(to, id);
@@ -24,7 +25,7 @@ struct CUTP{
                 if(low[to] >= dfn[id]) {
                     cut[id] = 1;
                 }
-            } else if(to != fa) {
+            } else {
                 low[id] = min(low[id], dfn[to]);
             }
         }
