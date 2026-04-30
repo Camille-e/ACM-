@@ -1,11 +1,5 @@
 #include<bits/stdc++.h>
-#define ll long long
-#define ull unsigned long long
-#define i128 __int128_t 
-#define IOS ios::sync_with_stdio(0), cin.tie(0)
 using namespace std;
-const int mod = 998244353;
-const int maxn = 1e5 + 2;
 struct DSU{
     DSU(int n) : fa(n + 1),sz(n + 1,1){
         iota(fa.begin(),fa.end(),0);
@@ -52,13 +46,4 @@ void solve(){
             cout << (e.same(u,v) ? "Y" : "N") << '\n';
         }
     }
-}
-signed main() {
-    IOS;
-    int _ = 1;
-    //cin >> _;
-    while (_--) {
-        solve();
-    }
-    return 0;
 }
