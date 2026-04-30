@@ -7,7 +7,7 @@ const ld PI = acos(-1);
 const ld EPS = 1e-7;
 const ld INF = 1E18;
 #define cc(x) cout << fixed << setprecision(x);
-#define Pt Point<T> // 简写
+#define Pt Point<T> // 简写ac
 #define PL Point<ll>
 #define Pi Point<int>
 #define Pd Point<ld>
@@ -346,21 +346,22 @@ tuple<int, Pd, ld> getCircle(Pd A, Pd B, Pd C) { // 三点确定一个圆
     Pd O = lineIntersection(l1, l2);
     return {1, O, dis(A, O)};
 }
-pair<int, vector<Point<ld>>> tangent(Point<ld> p, Point<ld> A, ld r) { // 求点到圆的切线数量与切点
-    vector<Point<ld>> ans; // 储存切点
-    Point<ld> u = A - p;
-    ld d = sqrt(dot(u, u));
+pair<int, vector<Point<ld>>> tangent(Point<ld> p, Point<ld> O, ld r) {// 求点到圆的切线数量与切点
+    vector<Point<ld>> ans;
+    Point<ld> v = p - O;
+    ld d = sqrt(dot(v, v));
     if (d < r) {
-        return {0, {}}; //点在圆内
-    } else if (sign(d - r) == 0) { // 点在圆上
-        ans.push_back(u);
-        return {1, ans};
-    } else {
-        ld ang = asin(r / d);
-        ans.push_back(getPoint(A, r, -ang));
-        ans.push_back(getPoint(A, r, ang));
-        return {2, ans};
+        return {0, {}};
     }
+    if (sign(d - r) == 0) {
+        ans.push_back(p);
+        return {1, ans};
+    }
+    ld base = atan2(v.y, v.x);
+    ld ang = acosl(r / d);
+    ans.push_back(O + Point<ld>{cosl(base + ang), sinl(base + ang)} * r);
+    ans.push_back(O + Point<ld>{cosl(base - ang), sinl(base - ang)} * r);
+    return {2, ans};
 }
 tuple<int, vector<Point<ld>>, vector<Point<ld>>> tangent(Point<ld> A, ld Ar, Point<ld> B, ld Br) {//求两圆的内公外公切线及切点
     vector<Point<ld>> a, b; // 储存切点,返回两个圆的切点
