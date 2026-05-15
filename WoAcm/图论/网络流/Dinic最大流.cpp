@@ -19,7 +19,6 @@ template <typename T> struct Flow_ {
     vector<Edge> ver;
     vector<vector<int>> h;
     vector<int> cur, d;
-    
     Flow_(int n) : n(n + 1), h(n + 1) {}
     void add(int u, int v, T c) {
         h[u].push_back(ver.size());

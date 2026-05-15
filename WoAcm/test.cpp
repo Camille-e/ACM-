@@ -2,7 +2,7 @@
 //g++内部平衡树
 //order_of_key(k)返回小于k的元素个数
 //erase(find(x))删一个元素
-//find_by_order(k)返回第k小的元素
+//find_by_order(k)返回第k小的元素(从0开始)
 // #include <ext/pb_ds/assoc_container.hpp>
 // #include <ext/pb_ds/tree_policy.hpp>
 using ll = long long;
