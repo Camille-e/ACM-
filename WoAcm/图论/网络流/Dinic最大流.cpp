@@ -72,31 +72,6 @@ template <typename T> struct Flow_ {
     }
 };
 using Flow = Flow_<int>;
-// 最小路径覆盖还原
-// int p = flow.work(s,t);
-// vector<int>next(n + 1),pre(n + 1);
-// for(int i = 1;i <= n;++i){
-//     for (int idx : flow.h[i]) {
-//         auto& e = flow.ver[idx];
-//         int v = e.to;
-//         if (v >= n + 1 && v <= 2 * n && e.w == 0) {
-//             next[i] = v - n;
-//             pre[v - n] = i;
-//             break;
-//         }
-//     }
-// }
-// for(int i = 1;i <= n;++i){
-//     if(pre[i] == 0){
-//         cout << i << ' ';
-//         int cur = i;
-//         while(next[cur]){
-//             cout << next[cur] << ' ';
-//             cur = next[cur];
-//         }
-//         cout << '\n';
-//     }
-// }
 void solve(){
     int n,m,s,t;cin >> n >> m >> s >> t;
     Flow_<ll> di(n);

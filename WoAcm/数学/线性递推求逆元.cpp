@@ -46,6 +46,19 @@ struct Inv_fac{
         if(a < b)return 0ll;
         return fac[a] * facinv[a - b] % mod;
     }
+    //组合数奇偶性
+    int C_odd(ll n, ll k) {
+        if (k < 0 || k > n) return 1;
+        return (k & ~n) == 0;
+        // 等价于：return ((n | k) == n);
+    }
+    //前缀奇偶性
+    int prefix_C_odd(long long n, long long k) {
+        if (k < 0) return 0;
+        if (n == 0) return 1;
+        if (k >= n) return 0;
+        return (((n - 1) | k) == (n - 1));
+    }
     ll lucas(int a,int b,int mod){
         return C(a / mod,b / mod) * C(a % mod,b % mod) % mod;
     }
