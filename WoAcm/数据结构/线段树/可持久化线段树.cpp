@@ -126,9 +126,28 @@ struct PersistentTree {
             return treekth(rs(vu), rs(vv), rs(vlca), rs(vflca), mid + 1, r, k - dx);
         }
     }
-#undef ls
-#undef rs
-
+    template<class F>
+    int findLast(int version,int x, int y, F check) {
+        Info suf{};
+        return findLast(root[version], 1, n, x, y, suf, check);
+    }
+    template<class F>
+    int findLast(int id, int l, int r, int x, int y, Info &suf, F &check) {
+        if (r < x || l > y) return -1;
+        if (x <= l && r <= y) {
+            Info cur = info[id] + suf;
+            if (!check(cur)) {
+                suf = cur;
+                return -1;
+            }
+            if (l == r) return l;
+        }
+        int mid = (l + r) >> 1;
+        int res = -1;
+        if (y > mid) res = findLast(rs(id), mid + 1, r, x, y, suf, check);
+        if (res == -1 && x <= mid) res = findLast(ls(id), l, mid, x, y, suf, check);
+        return res;
+    }
     const int n;
     vector<int> lson, rson;
     vector<Info> info;
@@ -152,6 +171,8 @@ struct PersistentTree {
     void pull(int id) {
         info[id] = info[ls(id)] + info[rs(id)];
     }
+#undef ls
+#undef rs
 };
 
 struct Tag {

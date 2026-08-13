@@ -10,7 +10,7 @@ void solve() {
     cin >> n;
     vector<string>a(n);
     vector<vector<int>>tree(maxn,vector<int>(26));
-    vector<int>ed(maxn);//以序号i结尾的模式串所在结点
+    vector<int>ed(maxn),ok(maxn,-1);//以序号i结尾的模式串所在结点,当前结点是否是模式串结尾结点
     int cn = 0;
     //添加模式串
     auto ad = [&](int k,string a){
@@ -23,6 +23,7 @@ void solve() {
             cur = tree[cur][path];
         }
         ed[k] = cur;
+        ok[cur] = k;
     };
     for(int i = 0;i < n;++i){
         cin >> a[i];
@@ -52,8 +53,8 @@ void solve() {
         }
     };
     bfs();
-    string s;
-    cin >> s;
+
+    string s;cin >> s;
     int cur = 0;
     for(int i = 0;i < s.size();++i){
         int path = s[i] - 'a';
@@ -64,29 +65,14 @@ void solve() {
     for(int i = 1;i <= cn;++i){
         g[fail[i]].push_back(i);
     }
-    stack<int>st;
-    st.push(0);
-    vector<bool>vis(maxn);
-    //结点警告,即发现模式串
-    vector<int>alert(maxn);
-    for(int i = 0;i < n;++i){
-        alert[ed[i]] = 1;
-    }
-    while (st.size()){
-        int x = st.top();
-        if(vis[x] == 0){
-            vis[x] = 1;
-            for(int i = 0;i < g[x].size();++i){
-                st.push(g[x][i]);
-            }
-        }else{
-            st.pop();
-            for(int i = 0;i < g[x].size();++i){
-                times[x] += times[g[x][i]];
-                alert[g[x][i]] |= alert[x];
-            }
+    auto dfs = [&](auto && dfs,int i)->void
+    {
+        for(auto to : g[i]){
+            dfs(dfs,to);
+            times[i] += times[to];
         }
-    }
+    };
+    dfs(dfs,0);
     for(int i = 0;i < n; ++i){
         cout << times[ed[i]] <<'\n';
     }

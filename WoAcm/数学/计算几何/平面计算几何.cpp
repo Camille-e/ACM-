@@ -3,6 +3,7 @@ using namespace std;
 #define IOS ios::sync_with_stdio(0), cin.tie(0)
 using ld = long double;
 using ll = long long;
+using i128 = __int128_t;
 const ld PI = acos(-1);
 const ld EPS = 1e-7;
 const ld INF = 1E18;
@@ -133,6 +134,13 @@ template<class T> bool onLine(Point<T> a, Point<T> b, Point<T> c) { // 点是否
 }
 template<class T> bool onLine(Point<T> p, Line<T> l) { // 点是否在直线上
     return onLine(p, l.a, l.b);
+}
+template<class T>bool onSegment(Point<T> p, Point<T> a, Point<T> b){ // 点是否在线段上
+    return sign(cross(p, a, b)) == 0 &&
+           min(a.x, b.x) - EPS <= p.x &&
+           p.x <= max(a.x, b.x) + EPS &&
+           min(a.y, b.y) - EPS <= p.y &&
+           p.y <= max(a.y, b.y) + EPS;
 }
 template<class T> bool pointOnLineLeft(Pt p, Lt l) { // 点是否在向量左侧
     return cross(l.b, p, l.a) > 0;
@@ -481,7 +489,7 @@ template<class T> Line<ld> getfun(T A, T B, T C) { // Ax + By = C,一般式转�
             x2 = 0, y2 = 0;
         }
     } else { // 不合法，请特判
-        assert(false);
+        // assert(false);
     }
     return {{x1, y1}, {x2, y2}};
 }
@@ -606,17 +614,19 @@ template<class T> ld area(vector<Point<T>> P) { // 任意多边形的面积
 }
 // 皮克定理
 //绘制在方格纸上的多边形面积公式可以表示为 S = n + (s / 2) − 1 ，其中 n 表示多边形内部的点数、s 表示多边形边界上的点数。
-//一条线段上的点数为 gcd(|x1 − x2|,|y1 − y2|) + 1。 
-int onPolygonGrid(vector<Point<int>> p) { // 任意多边形上的网格点个数（仅能处理整数）
-    int n = p.size(), ans = 0;
+//一条线段上的点数为 gcd(|x1 − x2|,|y1 − y2|)。(不包括终点) 
+template<class T> T onPolygonGrid(vector<Point<T>> p) { // 任意多边形上的网格点个数（仅能处理整数）
+    int n = p.size();
+    T ans = 0;
     for (int i = 0; i < n; i++) {
         auto a = p[i], b = p[(i + 1) % n];
         ans += gcd(abs(a.x - b.x), abs(a.y - b.y));
     }
     return ans;
 }
-int inPolygonGrid(vector<Point<int>> p) { // 任意多边形内部的网格点个数（仅能处理整数）
-    int n = p.size(), ans = 0;
+template<class T> T  inPolygonGrid(vector<Point<int>> p) { // 任意多边形严格内部的网格点个数（仅能处理整数）
+    int n = p.size();
+    T ans = 0;
     for (int i = 0; i < n; i++) {
         auto a = p[i], b = p[(i + 1) % n], c = p[(i + 2) % n];
         ans += b.y * (a.x - c.x);
@@ -671,23 +681,76 @@ template<class T> int contains(Point<T> p, vector<Point<T>> A) { // 点与凸包
     }
     return in ? 2 : 0;
 }
-template<class T> vector<Point<T>> mincowski(vector<Point<T>> P1, vector<Point<T>> P2) {// 闵可夫斯基和 计算两个凸包合成的大凸包。
-    int n = P1.size(), m = P2.size();
-    vector<Point<T>> V1(n), V2(m);
-    for (int i = 0; i < n; i++) {
-        V1[i] = P1[(i + 1) % n] - P1[i];
+template<class T>bool inConvex(vector<Point<T>>& hull, Point<T> p){
+    int n = hull.size();
+    if(n == 1)
+        return p == hull[0];
+    if(n == 2)
+        return onSegment(p, hull[0], hull[1]);
+    Point<T> o = hull[0];
+    if(sign(cross(hull[1], p, o)) < 0)
+        return false;
+    if(sign(cross(hull[n-1], p, o)) > 0)
+        return false;
+    if(onSegment(p, o, hull[1]))
+        return true;
+    if(onSegment(p, o, hull[n-1]))
+        return true;
+    int l = 1;
+    int r = n - 1;
+    while(r - l > 1){
+        int mid = (l + r) >> 1;
+        if(sign(cross(hull[mid], p, o)) >= 0)
+            l = mid;
+        else
+            r = mid;
     }
-    for (int i = 0; i < m; i++) {
-        V2[i] = P2[(i + 1) % m] - P2[i];
+    return sign(cross(hull[l+1], p, hull[l])) >= 0;
+}
+template<class T> void rotate(vector<Point<T>>& p){
+    int id = 0;
+    for(int i=1;i<p.size();i++)
+    {
+        if(p[i].y < p[id].y ||
+          (p[i].y == p[id].y && p[i].x < p[id].x))
+            id=i;
     }
-    vector<Point<T>> ans = {P1.front() + P2.front()};
-    int t = 0, i = 0, j = 0;
-    while (i < n && j < m) {
-        Point<T> val = sign(cross(V1[i], V2[j])) > 0 ? V1[i++] : V2[j++];
-        ans.push_back(ans.back() + val);
+
+    rotate(p.begin(),p.begin()+id,p.end());
+}
+//S(P + λQ) = S(P) + 2λM(P,Q) + λ^2 S(Q)
+//L(P + Q) = L(P) + L(Q)
+//B(p + λQ) = B(P) + λB(Q);
+template<class T>vector<Point<T>> mincowski(vector<Point<T>> P1, vector<Point<T>> P2){ // 闵可夫斯基和
+    rotate(P1);
+    rotate(P2);
+    int n=P1.size();
+    int m=P2.size();
+    vector<Point<T>> V1(n),V2(m);
+    for(int i=0;i<n;i++)
+        V1[i]=P1[(i+1)%n]-P1[i];
+    for(int i=0;i<m;i++)
+        V2[i]=P2[(i+1)%m]-P2[i];
+    vector<Point<T>> ans;
+    ans.push_back(P1[0]+P2[0]);
+    int i = 0,j = 0;
+    while(i < n || j < m){
+        Point<T> cur;
+        if(i == n)cur=V2[j++];
+        else if(j==m)cur=V1[i++];
+        else{
+            auto c = cross(V1[i],V2[j]);
+            if(c > 0)cur=V1[i++];
+            else if(c<0)cur=V2[j++];
+            else{
+                cur = V1[i] + V2[j];
+                i++;
+                j++;
+            }
+        }
+        ans.push_back(ans.back()+cur);
     }
-    while (i < n) ans.push_back(ans.back() + V1[i++]);
-    while (j < m) ans.push_back(ans.back() + V2[j++]);
+    ans.pop_back();
     return ans;
 }
 template<class T> vector<Point<T>> halfcut(vector<Line<T>> lines) { // 半平面交
@@ -743,12 +806,12 @@ vector<Point<T>> lowerConvexHull(vector<Point<T>> A, int flag = 1) {
     // flag = 0：保留边上点
     // flag = 1：去掉边上共线点
     int n = A.size();
-    if (n <= 1) return A;
     sort(A.begin(), A.end());
+    if (n <= 2) return A;
     vector<Point<T>> hull;
     for (int i = 0; i < n; ++i) {
         while ((int)hull.size() >= 2 &&
-               cross(A[i], hull.back(), hull[(int)hull.size() - 2]) < flag) {
+               cross(hull.back(), A[i], hull[(int)hull.size() - 2]) < flag) {
             hull.pop_back();
         }
         hull.push_back(A[i]);
@@ -762,19 +825,18 @@ vector<Point<T>> upperConvexHull(vector<Point<T>> A, int flag = 1) {
     // flag = 0：保留边上点
     // flag = 1：去掉边上共线点
     int n = A.size();
-    if (n <= 1) return A;
     sort(A.begin(), A.end());
+    if (n <= 2) return A;
     vector<Point<T>> hull;
     for (int i = n - 1; i >= 0; --i) {
         while ((int)hull.size() >= 2 &&
-               cross(A[i], hull.back(), hull[(int)hull.size() - 2]) < flag) {
+               cross(hull.back(), A[i], hull[(int)hull.size() - 2]) < flag) {
             hull.pop_back();
         }
         hull.push_back(A[i]);
     }
     return hull;
 }
-
 void solve(){
     int n;cin >> n;
     vector<Pd>P(n);
