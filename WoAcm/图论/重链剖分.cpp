@@ -86,6 +86,53 @@ struct SegmentTree {
         }
         return res;
     }
+    //check满足条件时说明这个区间可能有答案
+    template<class F>
+    int findFirst(int x, int y, F check) {
+        Info pre{};
+        return findFirst(1, 1, n, x, y, pre, check);
+    }
+    template<class F>
+    int findFirst(int id, int l, int r, int x, int y, Info &pre, F &check) {
+        if (r < x || l > y) return -1;
+        if (x <= l && r <= y) {
+            Info cur = pre + info[id];
+            if (!check(cur)) {
+                pre = cur;
+                return -1;
+            }
+            if (l == r) return l;
+        }
+        pushdown(id);
+        int mid = (l + r) >> 1;
+        int res = -1;
+        if (x <= mid) res = findFirst(ls, l, mid, x, y, pre, check);
+        if (res == -1 && y > mid) res = findFirst(rs, mid + 1, r, x, y, pre, check);
+        return res;
+    }
+    template<class F>
+    int findLast(int x, int y, F check) {
+        Info suf{};
+        return findLast(1, 1, n, x, y, suf, check);
+    }
+    template<class F>
+    int findLast(int id, int l, int r, int x, int y, Info &suf, F &check) {
+        if (r < x || l > y) return -1;
+        if (x <= l && r <= y) {
+            Info cur = info[id] + suf;
+            if (!check(cur)) {
+                suf = cur;
+                return -1;
+            }
+            if (l == r) return l;
+        }
+        pushdown(id);
+        int mid = (l + r) >> 1;
+        int res = -1;
+        if (y > mid) res = findLast(rs, mid + 1, r, x, y, suf, check);
+        if (res == -1 && x <= mid) res = findLast(ls, l, mid, x, y, suf, check);
+        return res;
+    }
 #undef ls
 #undef rs
     int n;
@@ -215,6 +262,37 @@ struct HLD{
     }
     int dis(int x, int y) {
         return deep[x] + deep[y] - 2 * deep[queryLCA(x, y)];
+    }
+    //线段树二分找第一个满足条件的id
+    int queryid(int u,int v,int j){
+        auto check = [&](Info &x){
+            return !(x.sum >> j & 1);
+        };
+        vector<pair<int,int>> L,R;
+        while(top[u] != top[v]){
+            if(deep[top[u]] >= deep[top[v]]){
+                L.push_back({dfn[top[u]],dfn[u]});
+                u=fa[top[u]];
+            }else{
+                R.push_back({dfn[top[v]],dfn[v]});
+                v=fa[top[v]];
+            }
+        }
+        if(deep[u]>=deep[v]){
+            L.push_back({dfn[v],dfn[u]});
+        }else{
+            R.push_back({dfn[u],dfn[v]});
+        }
+        for(auto [l,r]:L){
+            int id=tree.findLast(l,r,check);
+            if(id!=-1)return seg[id];
+        }
+        reverse(R.begin(),R.end());
+        for(auto [l,r]:R){
+            int id = tree.findFirst(l,r,check);
+            if(id != -1)return seg[id];
+        }
+        return -1;
     }
     // ll querymx(int u,int v){
     //     ll res = -1e11;
