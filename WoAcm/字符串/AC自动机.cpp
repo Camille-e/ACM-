@@ -1,86 +1,105 @@
 #include<bits/stdc++.h>
-#define ll long long
-#define IOS ios::sync_with_stdio(0), cin.tie(0)
 using namespace std;
-const int mod = 1e9 + 7;
-const int maxn = 2e5 + 2;
-//https://www.luogu.com.cn/problem/P5357
-void solve() {
-    int n;
-    cin >> n;
-    vector<string>a(n);
-    vector<vector<int>>tree(maxn,vector<int>(26));
-    vector<int>ed(maxn),ok(maxn,-1);//以序号i结尾的模式串所在结点,当前结点是否是模式串结尾结点
-    int cn = 0;
-    //添加模式串
-    auto ad = [&](int k,string a){
-        int cur = 0;
-        for(int i = 0,path;i < a.size();++i){
-            path = a[i] - 'a';
-            if(tree[cur][path] == 0){
-                tree[cur][path] = ++cn;
-            }
-            cur = tree[cur][path];
-        }
-        ed[k] = cur;
-        ok[cur] = k;
+#define IOS ios::sync_with_stdio(0), cin.tie(0)
+struct AhoCorasick {
+    static constexpr int ALPHABET = 26;
+    struct Node {
+        int len;
+        int link;
+        array<int, ALPHABET> next;
+        Node() : len{0}, link{0}, next{} {}
     };
-    for(int i = 0;i < n;++i){
-        cin >> a[i];
-        ad(i,a[i]);
+    vector<Node> t;
+    AhoCorasick() {
+        init();
     }
-    //结点出现次数
-    vector<int>times(maxn);
-    vector<int>fail(maxn);
-    auto bfs = [&](){
-        queue<int>q;
-        for(int i = 0;i < 26; ++i){
-            if(tree[0][i] > 0){
-                q.push(tree[0][i]);
+    void init() {
+        //1是根节点
+        t.assign(2, Node());
+        t[0].next.fill(1);
+        t[0].len = -1;
+    }
+    int newNode() {
+        t.emplace_back();
+        return t.size() - 1;
+    }
+    int add(const string &a) {
+        int p = 1;
+        for (auto c : a) {
+            int x = c - 'a';
+            if (t[p].next[x] == 0) {
+                t[p].next[x] = newNode();
+                t[t[p].next[x]].len = t[p].len + 1;
             }
+            p = t[p].next[x];
         }
-        while(q.size()){
+        return p;
+    }
+    void work() {
+        queue<int> q;
+        q.push(1);
+        while (!q.empty()) {
             int x = q.front();
             q.pop();
-            for(int i = 0;i < 26;++i){
-                if(tree[x][i] == 0){
-                    tree[x][i] = tree[fail[x]][i];
-                }else{
-                    fail[tree[x][i]] = tree[fail[x]][i];
-                    q.push(tree[x][i]); 
+            for (int i = 0; i < ALPHABET; i++) {
+                if (t[x].next[i] == 0) {
+                    t[x].next[i] = t[t[x].link].next[i];
+                } else {
+                    t[t[x].next[i]].link = t[t[x].link].next[i];
+                    q.push(t[x].next[i]);
                 }
             }
         }
-    };
-    bfs();
-
-    string s;cin >> s;
-    int cur = 0;
-    for(int i = 0;i < s.size();++i){
-        int path = s[i] - 'a';
-        cur = tree[cur][path];
-        times[cur]++;
     }
-    vector<vector<int>>g(maxn);
-    for(int i = 1;i <= cn;++i){
-        g[fail[i]].push_back(i);
+    int next(int p, int x) {
+        return t[p].next[x];
+    }
+    int link(int p) {
+        return t[p].link;
+    }
+    int len(int p) {
+        return t[p].len;
+    }
+    int size() {
+        return t.size();
+    }
+};
+void solve(){
+    int n;cin >> n;
+    AhoCorasick ac;
+    vector<int>id(n + 1);
+    for(int i = 1;i <= n;++i){
+        string a;cin >> a;
+        id[i] = ac.add(a);
+    }
+    ac.work();
+    vector<vector<int>>g(ac.size());
+    vector<int>dp(ac.size());
+    for(int i = 1;i < ac.size();++i){
+        g[ac.t[i].link].push_back(i);
+    }
+    string tmp;cin >> tmp;
+    int cur = 1;
+    for(auto x : tmp){
+        cur = ac.next(cur,x - 'a');
+        dp[cur]++;
     }
     auto dfs = [&](auto && dfs,int i)->void
     {
         for(auto to : g[i]){
             dfs(dfs,to);
-            times[i] += times[to];
+            dp[i] += dp[to];
         }
     };
     dfs(dfs,0);
-    for(int i = 0;i < n; ++i){
-        cout << times[ed[i]] <<'\n';
+    for(int i = 1;i <= n;++i){
+        cout << dp[id[i]] << '\n';
     }
 }
 signed main() {
     IOS;
     int _ = 1;
-    //cin >> _;
+    // cin >> _;
     while (_--) {
         solve();
     }

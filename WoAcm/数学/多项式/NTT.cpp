@@ -60,7 +60,15 @@ vector<ll> multiply(const vector<ll> &A, const vector<ll> &B) {
     }
     return va;
 }
-
+vector<ll> cyclic_convolution(const vector<ll> &A, const vector<ll> &B) {
+    int n = A.size();
+    auto C = multiply(A, B);
+    vector<ll> res(n, 0);
+    for(int i = 0; i < C.size(); ++i) {
+        res[i % n] = (res[i % n] + C[i]) % P;
+    }
+    return res;
+}
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);

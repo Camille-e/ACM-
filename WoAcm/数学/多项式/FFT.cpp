@@ -60,7 +60,16 @@ vector<T> convolution(const vector<T> &A, vector<T> kernel) {
     //return res;
     return vector(res.begin() + kernel.size() - 1, res.begin() + A.size());
 }
-
+template<typename T>
+vector<T> cyclic_convolution(const vector<T> &A, const vector<T> &B) {
+    int n = A.size();
+    auto res = multiply(A, B);
+    vector<T> ans(n);
+    for(int i = 0; i < res.size(); ++i) {
+        ans[i % n] += res[i];
+    }
+    return ans;
+}
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);

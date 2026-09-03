@@ -14,9 +14,19 @@ ll dis2(Point a, Point b) {
     ll dy = a.y - b.y;
     return dx * dx + dy * dy;
 }
+int half(Point p) {
+    p.x -= O.x;
+    p.y -= O.y;
+    return p.y > 0 || (p.y == 0 && p.x >= 0);
+}
 bool cmp(Point a, Point b) {
+    int ha = half(a);
+    int hb = half(b);
+    if (ha != hb)
+        return ha > hb;
     ll c = cross(O, a, b);
     if (c != 0)
         return c > 0;
+
     return dis2(O, a) < dis2(O, b);
 }

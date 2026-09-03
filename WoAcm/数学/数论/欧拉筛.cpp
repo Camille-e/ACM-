@@ -8,12 +8,17 @@ const int mod = 1e9 + 7;
 const int maxn = 1e8 + 2;
 //https://www.luogu.com.cn/problem/P3383
 vector<int>pri;
-bitset<maxn>vis;
+bitset<maxn + 1>vis;
+vector<int>mipri(maxn + 1);
 void eular(){
     for(int i = 2;i <= maxn;++i){
-        if(!vis[i])pri.push_back(i);
+        if(!vis[i]){
+            pri.push_back(i);
+            mipri[i] = i;
+        }
         for(int j = 0;i * pri[j] <= maxn;++j){
             vis[i * pri[j]] = 1;
+            mipri[i * pri[j]] = pri[j];
             if(i % pri[j] == 0)break;
         }
     }
