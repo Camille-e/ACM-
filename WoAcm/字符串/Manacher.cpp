@@ -18,17 +18,19 @@ void solve() {
     //i:当前来到的位置,c:回文中心,r:最长回文半径
     //i - len,i + len为将要对比的位置
     //(i - len,i + len)双开区间
-    for(int i = 0,c = 0,r = 0,len;i < n;++i){
-        len = i < r ? min(r - i,p[2 * c - i]) : 1;
+    for(int i = 0, c = 0, r = 0; i < n; ++i){
+        int len = (i < r ? min(r - i, p[2 * c - i]) : 1);
         while(i - len >= 0 && i + len < n && b[i - len] == b[i + len]){
-            len ++;
-            r = i + len;
-            c = i;
+            ++len;
         }
-        p[i] = len;
-        maxv = max(maxv,len);
+        p[i] = len - 1;
+        if(i + p[i] > r){
+            c = i;
+            r = i + p[i];
+        }
+        maxv = max(maxv,p[i]);
     }
-    cout << maxv - 1 <<'\n';
+    cout << maxv <<'\n';
 }
 signed main() {
     IOS;
