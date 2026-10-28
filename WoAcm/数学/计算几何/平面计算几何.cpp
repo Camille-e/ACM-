@@ -117,7 +117,7 @@ ld angle(ld a, ld b, ld c) { // 余弦定理
     ld val = acos((a * a + b * b - c * c) / (2.0 * a * b)); // 计算弧度
     return val;
 }
-ld angle(Point<ld> a, Point<ld> b) { // 两向量的夹角[0,180)
+ld angle(Point<ld> a, Point<ld> b) { // 两向量的夹角[0,180]
     ld val = abs(cross(a, b));
     return abs(atan2(val, a.x * b.x + a.y * b.y));
 }
@@ -753,7 +753,7 @@ template<class T>vector<Point<T>> mincowski(vector<Point<T>> P1, vector<Point<T>
     ans.pop_back();
     return ans;
 }
-template<class T> vector<Point<T>> halfcut(vector<Line<T>> lines) { // 半平面交
+template<class T> vector<Point<T>> halfcut(vector<Line<T>> lines) { // 左半平面交
     sort(lines.begin(), lines.end(), [&](auto l1, auto l2) {
         auto d1 = l1.b - l1.a;
         auto d2 = l2.b - l2.a;

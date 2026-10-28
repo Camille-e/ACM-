@@ -156,7 +156,7 @@ int main() {
     for(int i = 1; i <= q; ++i) {
         int l, r, k;
         cin >> l >> r >> k;
-        cout << wlm.kth(l, r, k) << '\n';
+        cout << wlm.rangeFreq(l, r, 1, k) << '\n';
     }
     return 0;
 }
