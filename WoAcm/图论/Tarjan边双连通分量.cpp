@@ -55,9 +55,8 @@ struct Tarjan{
     }
 };
 // //缩点 && 去重边
-// int pren = n;
 // //这是缩点后树上点的个数
-// n = tar.tot;
+// int tot = tar.tot;
 // vector<vector<int>>g(n + 1);
 // for(int i = 1;i <= n;++i){
 //     for(auto x : tar.ecc[i]){

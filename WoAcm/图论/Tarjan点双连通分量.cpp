@@ -72,8 +72,6 @@ struct Tarjan{
         }
     }
 };
-// int pren = n;
-// n = tar.tot;
 void solve(){
     int n,m;
     cin >> n >> m;
